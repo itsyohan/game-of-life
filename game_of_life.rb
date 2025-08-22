@@ -5,8 +5,8 @@ class Cell
     live: "⬜️"
   }
 
-  def self.colors(color)
-    COLORS[color]
+  def self.colors(state)
+    COLORS[state]
   end
 
   attr_reader :state
@@ -70,6 +70,10 @@ class Game
     height = (width * 0.6).round
 
     # Array.new { block } ensures array does not fill with the same objects
+    #
+    # TODO: create a Grid class like so - Grid.new(width:, height)
+    # it would be nice to have an api like this grid.at(x, y)
+    # because it's more readable and intuitive than grid[y][x]
     @grid = height.times.map { Array.new(width) { Cell.new(:dead) } }
 
     # x,y coordinates of the center
