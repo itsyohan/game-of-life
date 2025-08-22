@@ -101,7 +101,12 @@ loop do
     end
   end
 
-  sleep(1)
+  if ENV["MODE"] == 'debug'
+    gets
+  else
+    sleep(1)
+  end
+
   generation += 1
   grid = new_grid
 end
