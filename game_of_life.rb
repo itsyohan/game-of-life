@@ -171,12 +171,12 @@ class Game
         if debug? && @generation == 1 && cell.live?
           debug_grid = grid.deep_dup
           debug_grid[y][x] = Cell.new(:highlight)
-          puts "x: #{x}, y: #{y}, grid: #{grid[y].object_id} new_grid: #{new_grid[y].object_id}"
-          puts "this grid:"
-          puts grid_to_string(grid)
-          puts "next grid:"
-          puts grid_to_string(new_grid)
-          # render_grid(selected_grid: new_grid)
+          debug_grid.each_with_index do |debug_row, debug_y|
+            debug_row << "------->>"
+            debug_row.concat(new_grid[debug_y])
+          end
+          puts grid_to_string(debug_grid)
+          puts ""
         end
       end
     end
