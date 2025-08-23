@@ -1,8 +1,20 @@
 require "debug"
+class Array
+  def deep_dup
+    map do |elem|
+      if elem.is_a?(Array)
+        elem.deep_dup
+      else
+        elem.dup
+      end
+    end
+  end
+end
 class Cell
   COLORS = {
     dead: "⬛️",
-    live: "⬜️"
+    live: "⬜️",
+    highlight: "🟥"
   }
 
   def self.colors(state)
@@ -46,23 +58,26 @@ class Game
   end
 
   def play
-    generation = 1
+    @generation = 1
 
     loop do
-      puts "generation ##{generation}"
+      puts "generation ##{@generation}"
+
+      # TODO: break if last grid and curernt grid are the same
+      # break if debug? && @generation == 3
 
       render_grid
       @grid = prepare_new_grid
-      generation += 1
+      @generation += 1
 
-      if ENV["MODE"] == 'debug'
+      if debug?
         gets
       else
         sleep(1)
       end
     end
   ensure
-    reset_and_render_grid
+    # reset_and_render_grid
   end
 
   def reset_grid
@@ -74,6 +89,15 @@ class Game
     # TODO: create a Grid class like so - Grid.new(width:, height)
     # it would be nice to have an api like this grid.at(x, y)
     # because it's more readable and intuitive than grid[y][x]
+    # OR
+    # grid.cell(x, y) # reader
+    # grid.cell = (x, y, value) # writer
+    # grid.cell(x, y) = value # I want to do this but I don't think it's valid ruby
+    # grid.cell(x, y).= value # but this is
+    ### Grid ###
+    # def cell(x, y)
+    #  Cell.new(self, x, y)
+    # end
     @grid = height.times.map { Array.new(width) { Cell.new(:dead) } }
 
     # x,y coordinates of the center
@@ -91,9 +115,17 @@ class Game
     end
   end
 
-  def render_grid
-    output = grid.map { _1.join("") }.join("\n")
-    File.write("output.txt", output)
+  def render_grid(selected_grid: grid, output: :file)
+    output = grid_to_string(selected_grid)
+    if output == :terminal
+      print output
+    else
+      File.write("output.txt", output)
+    end
+  end
+
+  def grid_to_string(grid)
+    grid.map { _1.join("") }.join("\n")
   end
 
   def reset_and_render_grid
@@ -105,7 +137,7 @@ class Game
     # iterate over the grid and for each cell calculate the next state
     # the grid and cells remain unchanged and all the changes, the next states,
     # will be represented on a copied version of grid and cells
-    new_grid = grid.dup
+    new_grid = grid.deep_dup
     grid.each_with_index do |row, y|
       row.each_with_index do |cell, x|
         # get 8 neighbors, watch out for edges
@@ -136,10 +168,24 @@ class Game
         end
 
         new_grid[y][x] = Cell.new(new_state)
+        if debug? && @generation == 1 && cell.live?
+          debug_grid = grid.deep_dup
+          debug_grid[y][x] = Cell.new(:highlight)
+          puts "x: #{x}, y: #{y}, grid: #{grid[y].object_id} new_grid: #{new_grid[y].object_id}"
+          puts "this grid:"
+          puts grid_to_string(grid)
+          puts "next grid:"
+          puts grid_to_string(new_grid)
+          # render_grid(selected_grid: new_grid)
+        end
       end
     end
 
     new_grid
+  end
+
+  def debug?
+    ENV['MODE'] == 'debug'
   end
 end
 
