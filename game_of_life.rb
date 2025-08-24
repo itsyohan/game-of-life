@@ -156,7 +156,7 @@ class Game
 
         new_state = if cell.live? && live.count < 2
           :dead
-        elsif cell.live? && [2.3].include?(live.count)
+        elsif cell.live? && [2,3].include?(live.count)
           :live
         elsif cell.live? && live.count >= 3
           :dead
@@ -169,6 +169,7 @@ class Game
 
         new_grid[y][x] = Cell.new(new_state)
         if debug? && @generation == 1 && cell.live?
+          puts "x: #{x}, y: #{y}, #{cell.state} -> #{new_state}, neighbors: #{live.count}"
           debug_grid = grid.deep_dup
           debug_grid[y][x] = Cell.new(:highlight)
           debug_grid.each_with_index do |debug_row, debug_y|
