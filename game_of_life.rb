@@ -54,29 +54,7 @@ class Game
   attr_reader :grid
 
   def initialize
-    reset_grid
-  end
-
-  def play
-    @generation = 1
-
-    loop do
-      puts "generation ##{@generation}"
-
-      render_grid
-      @grid = prepare_new_grid
-      @generation += 1
-
-      if debug?
-        gets
-      else
-        sleep(1)
-      end
-    end
-  end
-
-  def reset_grid
-    width = 40
+    width = 80
     height = (width * 0.6).round
 
     # Array.new { block } ensures array does not fill with the same objects
@@ -110,17 +88,30 @@ class Game
     end
   end
 
+  def play
+    @generation = 1
+
+    loop do
+      puts "generation ##{@generation}"
+
+      render_grid
+      @grid = prepare_new_grid
+      @generation += 1
+
+      if debug?
+        gets
+      else
+        sleep(0.3)
+      end
+    end
+  end
+
   def render_grid
     File.write("output.txt", grid_to_string(grid))
   end
 
   def grid_to_string(any_grid)
     any_grid.map { _1.join("") }.join("\n")
-  end
-
-  def reset_and_render_grid
-    reset_grid
-    render_grid
   end
 
   def prepare_new_grid
