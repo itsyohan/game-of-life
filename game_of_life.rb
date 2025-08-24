@@ -63,9 +63,6 @@ class Game
     loop do
       puts "generation ##{@generation}"
 
-      # TODO: break if last grid and curernt grid are the same
-      # break if debug? && @generation == 3
-
       render_grid
       @grid = prepare_new_grid
       @generation += 1
@@ -76,8 +73,6 @@ class Game
         sleep(1)
       end
     end
-  ensure
-    # reset_and_render_grid
   end
 
   def reset_grid
@@ -138,6 +133,7 @@ class Game
     # the grid and cells remain unchanged and all the changes, the next states,
     # will be represented on a copied version of grid and cells
     new_grid = grid.deep_dup
+
     grid.each_with_index do |row, y|
       row.each_with_index do |cell, x|
         # get 8 neighbors, watch out for edges
@@ -151,9 +147,9 @@ class Game
         w = grid[y][x-1] unless x == 0 # skip if first cell in row
         nw = grid[y-1][x-1] unless y == 0 || x == 0 # skip if first row or first cell in row
 
-        # determine the next state for cell
         live = [n,ne,e,se,s,sw,w,nw].compact.select(&:live?)
 
+        # determine the next state for cell
         new_state = if cell.live? && live.count < 2
           :dead
         elsif cell.live? && [2,3].include?(live.count)
@@ -164,20 +160,12 @@ class Game
           :live
         else
           :dead
-          # raise "unhandled state: #{cell.state}, live neighbor count: #{live.count}"
         end
 
         new_grid[y][x] = Cell.new(new_state)
-        if debug? && @generation == 1 && cell.live?
-          puts "x: #{x}, y: #{y}, #{cell.state} -> #{new_state}, neighbors: #{live.count}"
-          debug_grid = grid.deep_dup
-          debug_grid[y][x] = Cell.new(:highlight)
-          debug_grid.each_with_index do |debug_row, debug_y|
-            debug_row << "------->>"
-            debug_row.concat(new_grid[debug_y])
-          end
-          puts grid_to_string(debug_grid)
-          puts ""
+
+        if debug? && cell.live?
+          debug_info(x:, y:, current_state: cell.state, new_state:, new_grid:, neighbor_count: live.count)
         end
       end
     end
@@ -187,6 +175,18 @@ class Game
 
   def debug?
     ENV['MODE'] == 'debug'
+  end
+
+  def debug_info(x:, y:, current_state:, new_state:, new_grid:, neighbor_count:)
+    puts "x: #{x}, y: #{y}, state: #{current_state} -> #{new_state}, neighbors: #{neighbor_count}"
+    debug_grid = grid.deep_dup
+    debug_grid[y][x] = Cell.new(:highlight)
+    debug_grid.each_with_index do |debug_row, debug_y|
+      debug_row << "------->>"
+      debug_row.concat(new_grid[debug_y])
+    end
+    puts grid_to_string(debug_grid)
+    puts ""
   end
 end
 
