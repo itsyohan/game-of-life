@@ -110,17 +110,12 @@ class Game
     end
   end
 
-  def render_grid(selected_grid: grid, output: :file)
-    output = grid_to_string(selected_grid)
-    if output == :terminal
-      print output
-    else
-      File.write("output.txt", output)
-    end
+  def render_grid
+    File.write("output.txt", grid_to_string(grid))
   end
 
-  def grid_to_string(grid)
-    grid.map { _1.join("") }.join("\n")
+  def grid_to_string(any_grid)
+    any_grid.map { _1.join("") }.join("\n")
   end
 
   def reset_and_render_grid
