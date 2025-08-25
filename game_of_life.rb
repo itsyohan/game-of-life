@@ -1,3 +1,4 @@
+require 'optparse'
 require "debug"
 class Array
   def deep_dup
@@ -51,10 +52,13 @@ class Cell
 end
 
 class Game
-  attr_reader :grid
+  PLAYBACK_SPEED_TO_SLEEP = { '1' => 1, '2' => 0.8, '3' => 0.5, '4' => 0.3, '5' => 0.1, '6' => 0.05 }
 
-  def initialize
-    width = 80
+  attr_reader :grid, :options
+
+  def initialize(options)
+    @options = options
+    width = options.grid_width
     height = (width * 0.6).round
 
     # Array.new { block } ensures array does not fill with the same objects
@@ -101,7 +105,7 @@ class Game
       if debug?
         gets
       else
-        sleep(0.3)
+        sleep(PLAYBACK_SPEED_TO_SLEEP[options.playback_speed])
       end
     end
   end
@@ -176,4 +180,32 @@ class Game
   end
 end
 
-Game.new.play
+class Options
+  attr_accessor :grid_width, :playback_speed
+
+  def initialize
+    @grid_width = 40
+    @playback_speed = '1'
+  end
+
+  def to_h
+    { grid_width:, playback_speed: }
+  end
+
+  def self.get
+    options = new
+    OptionParser.new do |opts|
+      opts.on("-wWIDTH", "--width=WIDTH", "Control grid width. default: 40") do |w|
+        options.grid_width = w.to_i
+      end
+
+      opts.on("-sSPEED", "--speed=SPEED", "Control playback speed 1-6. default: 1") do |s|
+        options.playback_speed = s
+      end
+    end.parse!
+
+    options
+  end
+end
+
+Game.new(Options.get).play
