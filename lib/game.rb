@@ -6,28 +6,11 @@ module GOL
 
     def initialize(options)
       @options = options
-      width = options.grid_width
-      height = (width * 0.6).round
-
-      # Array.new { block } ensures array does not fill with the same objects
-      #
-      # TODO: create a Grid class like so - Grid.new(width:, height)
-      # it would be nice to have an api like this grid.at(x, y)
-      # because it's more readable and intuitive than grid[y][x]
-      # OR
-      # grid.cell(x, y) # reader
-      # grid.cell = (x, y, value) # writer
-      # grid.cell(x, y) = value # I want to do this but I don't think it's valid ruby
-      # grid.cell(x, y).= value # but this is
-      ### Grid ###
-      # def cell(x, y)
-      #  Cell.new(self, x, y)
-      # end
-      @grid = height.times.map { Array.new(width) { Cell.new(:dead) } }
+      @grid = Grid.new(options.grid_width, (options.grid_width * 0.6).round)
 
       # x,y coordinates of the center
-      # grid.length = outer array aka height
-      center_coord = [(width / 2).round, (grid.length / 2).round]
+      # grid.height = outer array aka height
+      center_coord = [(grid.width / 2).round, (grid.height / 2).round]
 
       # seed coordinates represent coordinates relative to the center
       seed_coords = [[1,0],[0,1],[1,1],[1,2],[2,2]]
@@ -36,7 +19,7 @@ module GOL
         x, y = seed_coord
         # in order to access values in two dimensional array you have to
         # go in the reverse order y and x because outer array represents the height
-        grid[center_y + y][center_x + x].live!
+        grid.at(center_x + x, center_y + y).live!
       end
 
       print_options
@@ -75,39 +58,37 @@ module GOL
       # will be represented on a copied version of grid and cells
       new_grid = grid.deep_dup
 
-      grid.each_with_index do |row, y|
-        row.each_with_index do |cell, x|
-          # get 8 neighbors, watch out for edges
-          # (maybe) i can refactor with a coordinate object i.e coord.top_or_right_edge?
-          n = grid[y-1][x] unless y == 0 # skip if top row
-          ne = grid[y-1][x+1] unless y == 0 || x == row.length - 1  # skip if top row or last cell in row
-          e = grid[y][x+1] unless x == row.length - 1  # skip if last cell in row
-          se = grid[y+1][x+1] unless y == grid.length - 1 || x == row.length - 1 # skip if last row or last cell in row
-          s = grid[y+1][x] unless y == grid.length - 1 # skip if last row
-          sw = grid[y+1][x-1] unless y == grid.length - 1 || x == 0 # skip if last row or first cell in row
-          w = grid[y][x-1] unless x == 0 # skip if first cell in row
-          nw = grid[y-1][x-1] unless y == 0 || x == 0 # skip if first row or first cell in row
+      grid.cells do |cell, x, y|
+        # get 8 neighbors, watch out for edges
+        # (maybe) i can refactor with a coordinate object i.e coord.top_or_right_edge?
+        n = grid.at(x, y-1) unless y == 0 # skip if top row
+        ne = grid.at(x+1, y-1) unless y == 0 || x == grid.width - 1  # skip if top row or last cell in row
+        e = grid.at(x+1, y) unless x == grid.width - 1  # skip if last cell in row
+        se = grid.at(x+1, y+1) unless y == grid.height - 1 || x == grid.width - 1 # skip if last row or last cell in row
+        s = grid.at(x, y+1) unless y == grid.height - 1 # skip if last row
+        sw = grid.at(x-1, y+1) unless y == grid.height - 1 || x == 0 # skip if last row or first cell in row
+        w = grid.at(x-1, y) unless x == 0 # skip if first cell in row
+        nw = grid.at(x-1, y-1) unless y == 0 || x == 0 # skip if first row or first cell in row
 
-          live = [n,ne,e,se,s,sw,w,nw].compact.select(&:live?)
+        live = [n,ne,e,se,s,sw,w,nw].compact.select(&:live?)
 
-          # determine the next state for cell
-          new_state = if cell.live? && live.count < 2
-            :dead
-          elsif cell.live? && [2,3].include?(live.count)
-            :live
-          elsif cell.live? && live.count >= 3
-            :dead
-          elsif cell.dead? && live.count == 3
-            :live
-          else
-            :dead
-          end
+        # determine the next state for cell
+        new_state = if cell.live? && live.count < 2
+          :dead
+        elsif cell.live? && [2,3].include?(live.count)
+          :live
+        elsif cell.live? && live.count >= 3
+          :dead
+        elsif cell.dead? && live.count == 3
+          :live
+        else
+          :dead
+        end
 
-          new_grid[y][x] = Cell.new(new_state)
+        new_grid.set(x, y, Cell.new(new_state))
 
-          if debug? && cell.live?
-            debug_info(x:, y:, current_state: cell.state, new_state:, new_grid:, neighbor_count: live.count)
-          end
+        if debug? && cell.live?
+          debug_info(x:, y:, current_state: cell.state, new_state:, new_grid:, neighbor_count: live.count)
         end
       end
 
@@ -120,10 +101,10 @@ module GOL
 
     def debug_info(x:, y:, current_state:, new_state:, new_grid:, neighbor_count:)
       debug_grid = grid.deep_dup
-      debug_grid[y][x] = Cell.new(:highlight)
-      debug_grid.each_with_index do |debug_row, debug_y|
+      debug_grid.set(x, y, Cell.new(:highlight))
+      debug_grid.rows do |debug_row, debug_y|
         debug_row << "------->>"
-        debug_row.concat(new_grid[debug_y])
+        debug_row.concat(new_grid.row(debug_y))
       end
       puts "x: #{x}, y: #{y}, state: #{current_state} -> #{new_state}, neighbors: #{neighbor_count}"
       puts grid_to_string(debug_grid)
