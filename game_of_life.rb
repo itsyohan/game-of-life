@@ -52,7 +52,7 @@ class Cell
 end
 
 class Game
-  PLAYBACK_SPEED_TO_SLEEP = { '1' => 1, '2' => 0.8, '3' => 0.5, '4' => 0.3, '5' => 0.1, '6' => 0.05 }
+  PLAYBACK_SPEED_TO_SLEEP_DURATION = { '1' => 1, '2' => 0.8, '3' => 0.5, '4' => 0.3, '5' => 0.1, '6' => 0.05 }
 
   attr_reader :grid, :options
 
@@ -105,7 +105,7 @@ class Game
       if debug?
         gets
       else
-        sleep(PLAYBACK_SPEED_TO_SLEEP[options.playback_speed])
+        sleep(sleep_duration)
       end
     end
   end
@@ -177,6 +177,10 @@ class Game
     end
     puts grid_to_string(debug_grid)
     puts ""
+  end
+
+  def sleep_duration
+    PLAYBACK_SPEED_TO_SLEEP_DURATION[options.playback_speed]
   end
 end
 
