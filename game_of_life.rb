@@ -209,22 +209,21 @@ class Options
   end
 
   def self.get
-    options = new
-    OptionParser.new do |opts|
-      opts.on("-wWIDTH", "--width=WIDTH", "Control grid width. Defaults to 40") do |w|
-        options.grid_width = w.to_i
-      end
+    new.tap do |options|
+      OptionParser.new do |op|
+        op.on("-wWIDTH", "--width=WIDTH", "Control grid width. Defaults to 40") do |w|
+          options.grid_width = w.to_i
+        end
 
-      opts.on("-sSPEED", "--speed=SPEED", "Control playback speed 1-6. Defaults to 1") do |s|
-        options.playback_speed = s
-      end
+        op.on("-sSPEED", "--speed=SPEED", "Control playback speed 1-6. Defaults to 1") do |s|
+          options.playback_speed = s
+        end
 
-      opts.on("-d", "--debug", "Run in debugging mode") do |d|
-        options.debug = d
-      end
-    end.parse!
-
-    options
+        op.on("-d", "--debug", "Run in debugging mode") do |d|
+          options.debug = d
+        end
+      end.parse!
+    end
   end
 end
 
