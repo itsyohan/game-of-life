@@ -90,6 +90,8 @@ class Game
       # go in the reverse order y and x because outer array represents the height
       grid[center_y + y][center_x + x].live!
     end
+
+    print_options
   end
 
   def play
@@ -164,7 +166,7 @@ class Game
   end
 
   def debug?
-    ENV['MODE'] == 'debug'
+    options.debug
   end
 
   def debug_info(x:, y:, current_state:, new_state:, new_grid:, neighbor_count:)
@@ -176,16 +178,22 @@ class Game
       debug_row.concat(new_grid[debug_y])
     end
     puts grid_to_string(debug_grid)
-    puts ""
+    puts
   end
 
   def sleep_duration
     PLAYBACK_SPEED_TO_SLEEP_DURATION[options.playback_speed]
   end
+
+  def print_options
+    puts "running with following options:"
+    puts "  #{options.to_h}"
+    puts
+  end
 end
 
 class Options
-  attr_accessor :grid_width, :playback_speed
+  attr_accessor :grid_width, :playback_speed, :debug
 
   def initialize
     @grid_width = 40
@@ -193,7 +201,7 @@ class Options
   end
 
   def to_h
-    { grid_width:, playback_speed: }
+    { grid_width:, playback_speed:, debug: }
   end
 
   def self.get
@@ -205,6 +213,10 @@ class Options
 
       opts.on("-sSPEED", "--speed=SPEED", "Control playback speed 1-6. default: 1") do |s|
         options.playback_speed = s
+      end
+
+      opts.on("-d", "--debug", "Run in debugging mode") do |d|
+        options.debug = d
       end
     end.parse!
 
