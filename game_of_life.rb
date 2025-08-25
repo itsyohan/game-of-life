@@ -1,5 +1,6 @@
 require 'optparse'
 require "debug"
+
 class Array
   def deep_dup
     map do |elem|
@@ -11,6 +12,7 @@ class Array
     end
   end
 end
+
 class Cell
   COLORS = {
     dead: "⬛️",
@@ -95,6 +97,7 @@ class Game
   end
 
   def play
+    puts "starting..."
     @generation = 1
 
     loop do
@@ -170,13 +173,13 @@ class Game
   end
 
   def debug_info(x:, y:, current_state:, new_state:, new_grid:, neighbor_count:)
-    puts "x: #{x}, y: #{y}, state: #{current_state} -> #{new_state}, neighbors: #{neighbor_count}"
     debug_grid = grid.deep_dup
     debug_grid[y][x] = Cell.new(:highlight)
     debug_grid.each_with_index do |debug_row, debug_y|
       debug_row << "------->>"
       debug_row.concat(new_grid[debug_y])
     end
+    puts "x: #{x}, y: #{y}, state: #{current_state} -> #{new_state}, neighbors: #{neighbor_count}"
     puts grid_to_string(debug_grid)
     puts
   end
@@ -198,6 +201,7 @@ class Options
   def initialize
     @grid_width = 40
     @playback_speed = '1'
+    @debug = false
   end
 
   def to_h
@@ -207,11 +211,11 @@ class Options
   def self.get
     options = new
     OptionParser.new do |opts|
-      opts.on("-wWIDTH", "--width=WIDTH", "Control grid width. default: 40") do |w|
+      opts.on("-wWIDTH", "--width=WIDTH", "Control grid width. Defaults to 40") do |w|
         options.grid_width = w.to_i
       end
 
-      opts.on("-sSPEED", "--speed=SPEED", "Control playback speed 1-6. default: 1") do |s|
+      opts.on("-sSPEED", "--speed=SPEED", "Control playback speed 1-6. Defaults to 1") do |s|
         options.playback_speed = s
       end
 
