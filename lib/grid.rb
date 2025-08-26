@@ -37,6 +37,8 @@ module GOL
     end
 
     def cells
+      return rows.flatten unless block_given?
+
       rows do |row|
         row.each do |cell|
           yield(cell)
@@ -45,8 +47,12 @@ module GOL
     end
 
     def rows
-      grid.each do |row|
-        yield(row)
+      if block_given?
+        grid.each do |row|
+          yield(row)
+        end
+      else
+        grid
       end
     end
 
