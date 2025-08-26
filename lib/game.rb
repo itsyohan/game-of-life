@@ -6,20 +6,11 @@ module GOL
 
     def initialize(options)
       @options = options
-      @grid = Grid.new(options.grid_width, (options.grid_width * 0.6).round)
-
-      # x,y coordinates of the center
-      # grid.height = outer array aka height
-      center_coord = [(grid.width / 2).round, (grid.height / 2).round]
-
-      # seed coordinates represent coordinates relative to the center
-      seed_coords = [[1,0],[0,1],[1,1],[1,2],[2,2]]
-      seed_coords.each do |seed_coord|
-        center_x, center_y = center_coord
-        x, y = seed_coord
-        # in order to access values in two dimensional array you have to
-        # go in the reverse order y and x because outer array represents the height
-        grid.at(center_x + x, center_y + y).live!
+      @grid = Grid.new(width: options.grid_width, height: (options.grid_width * 0.6).round)
+      seed = Seed.load(options.seed_name)
+      seed.cells do |cell, x, y|
+        x_offset, y_offset = grid.center_coord
+        grid.at(x + x_offset, y + y_offset).live! if cell.live?
       end
 
       print_options
