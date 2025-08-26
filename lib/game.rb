@@ -51,17 +51,18 @@ module GOL
       new_grid = grid.deep_dup
 
       grid.cells do |cell|
-        # get 8 neighbors, watch out for edges
-        # (maybe) i can refactor with a coordinate object i.e coord.top_or_right_edge?
         cell => { x:, y: }
-        n = grid.at(x, y-1) unless y == 0 # skip if top row
-        ne = grid.at(x+1, y-1) unless y == 0 || x == grid.width - 1  # skip if top row or last cell in row
-        e = grid.at(x+1, y) unless x == grid.width - 1  # skip if last cell in row
-        se = grid.at(x+1, y+1) unless y == grid.height - 1 || x == grid.width - 1 # skip if last row or last cell in row
-        s = grid.at(x, y+1) unless y == grid.height - 1 # skip if last row
-        sw = grid.at(x-1, y+1) unless y == grid.height - 1 || x == 0 # skip if last row or first cell in row
-        w = grid.at(x-1, y) unless x == 0 # skip if first cell in row
-        nw = grid.at(x-1, y-1) unless y == 0 || x == 0 # skip if first row or first cell in row
+        edge = Edge.new(grid, cell)
+
+        # get neighbors, watch out for edges
+        n = grid.at(x, y-1) unless edge.top?
+        ne = grid.at(x+1, y-1) unless edge.top_or_right?
+        e = grid.at(x+1, y) unless edge.right?
+        se = grid.at(x+1, y+1) unless edge.bottom_or_right?
+        s = grid.at(x, y+1) unless edge.bottom?
+        sw = grid.at(x-1, y+1) unless edge.bottom_or_left?
+        w = grid.at(x-1, y) unless edge.left?
+        nw = grid.at(x-1, y-1) unless edge.top_or_left?
 
         live = [n,ne,e,se,s,sw,w,nw].compact.select(&:live?)
 
