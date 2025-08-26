@@ -45,9 +45,10 @@ module GOL
     end
 
     def prepare_new_grid
-      # iterate over the grid and for each cell calculate the next state
-      # the grid and cells remain unchanged and all the changes, the next states,
-      # will be represented on a copied version of grid and cells
+      # iterate over the grid and calculate the next state for each cell
+      # the current grid and cells will remain unchanged
+      # all the changes will take place on a new grid with new cells
+      # it's done this way to ensure the order in which cells are processed does not affect the outcome of the states.
       new_grid = grid.deep_dup
 
       grid.cells do |cell|
