@@ -1,12 +1,12 @@
 module GOL
   class Grid
     def self.from(array)
-      wrapped = array.map do |rows|
-        rows.map do |state|
+      wrapped = array.map.with_index do |rows, y|
+        rows.map.with_index do |state, x|
           if state == :live
-            Cell.new(:live)
+            Cell.new(:live, x, y)
           else
-            Cell.new(:dead)
+            Cell.new(:dead, x, y)
           end
         end
       end
@@ -23,7 +23,7 @@ module GOL
       else
         @width = width
         @height = height
-        @grid = height.times.map { Array.new(width) { Cell.new(:dead) } }
+        @grid = height.times.map { |y| width.times.map { |x| Cell.new(:dead, x, y) } }
       end
     end
 
@@ -31,21 +31,22 @@ module GOL
       grid[y][x]
     end
 
-    def set(x, y, value)
-      grid[y][x] = value
+    def set(cell)
+      raise ArgumentError, "x, y must be set on Cell object" unless cell.x? && cell.y?
+      grid[cell.y][cell.x] = cell
     end
 
     def cells
-      rows do |row, y|
-        row.each_with_index do |cell, x|
-          yield(cell, x, y)
+      rows do |row|
+        row.each do |cell|
+          yield(cell)
         end
       end
     end
 
     def rows
-      grid.each_with_index do |row, y|
-        yield(row, y)
+      grid.each do |row|
+        yield(row)
       end
     end
 

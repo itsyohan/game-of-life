@@ -8,7 +8,8 @@ module GOL
       @options = options
       @grid = Grid.new(width: options.grid_width, height: (options.grid_width * 0.6).round)
       seed = Seed.load(options.seed_name)
-      seed.cells do |cell, x, y|
+      seed.cells do |cell|
+        cell => { x:, y: }
         x_offset, y_offset = grid.center_coord
         grid.at(x + x_offset, y + y_offset).live! if cell.live?
       end
@@ -49,9 +50,10 @@ module GOL
       # will be represented on a copied version of grid and cells
       new_grid = grid.deep_dup
 
-      grid.cells do |cell, x, y|
+      grid.cells do |cell|
         # get 8 neighbors, watch out for edges
         # (maybe) i can refactor with a coordinate object i.e coord.top_or_right_edge?
+        cell => { x:, y: }
         n = grid.at(x, y-1) unless y == 0 # skip if top row
         ne = grid.at(x+1, y-1) unless y == 0 || x == grid.width - 1  # skip if top row or last cell in row
         e = grid.at(x+1, y) unless x == grid.width - 1  # skip if last cell in row
@@ -76,7 +78,7 @@ module GOL
           :dead
         end
 
-        new_grid.set(x, y, Cell.new(new_state))
+        new_grid.set(Cell.new(new_state, x, y))
 
         if debug? && cell.live?
           debug_info(x:, y:, current_state: cell.state, new_state:, new_grid:, neighbor_count: live.count)
@@ -92,7 +94,7 @@ module GOL
 
     def debug_info(x:, y:, current_state:, new_state:, new_grid:, neighbor_count:)
       debug_grid = grid.deep_dup
-      debug_grid.set(x, y, Cell.new(:highlight))
+      debug_grid.set(Cell.new(:highlight, x, y))
       debug_grid.rows do |debug_row, debug_y|
         debug_row << "------->>"
         debug_row.concat(new_grid.row(debug_y))
