@@ -2,9 +2,8 @@ module GOL
   class Grid
     def self.from(array)
       wrapped = array.map do |rows|
-        rows.map do |cell|
-          # FIXME: don't use emojis for seeds
-          if cell + "️" == Cell.colors(:live)
+        rows.map do |state|
+          if state == :live
             Cell.new(:live)
           else
             Cell.new(:dead)

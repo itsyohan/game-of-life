@@ -1,10 +1,10 @@
 module GOL
   module Seed
     def self.load(seed_name)
-      # beware: this is not a normal empty string
+      mapping = { 'X' => :dead, 'O' => :live }
       File.read("seeds/#{seed_name}.txt")
         .split("\n")
-        .map { _1.split("").reject { |s| s == "️" } }
+        .map { _1.split("").map { |char| mapping[char] } }
         .then { Grid.from(_1) }
     end
   end
