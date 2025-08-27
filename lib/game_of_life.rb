@@ -1,12 +1,12 @@
 require "debug"
 
-require_relative 'cell'
 require_relative 'core_ext'
-require_relative 'edge'
-require_relative 'game'
-require_relative 'grid'
-require_relative 'options'
-require_relative 'seed'
+require_relative 'game_of_life/cell'
+require_relative 'game_of_life/edge'
+require_relative 'game_of_life/game'
+require_relative 'game_of_life/grid'
+require_relative 'game_of_life/options'
+require_relative 'game_of_life/seed'
 
 module GOL
   def self.play
