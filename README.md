@@ -1,6 +1,10 @@
 # Conway's Game of Life
 
-Ruby implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life). To get started, clone this repo and change into directory:
+Ruby implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life)
+
+[demo](https://github.com/user-attachments/assets/087c6c64-1aab-4de4-b15b-1d86f1ff1c74)
+
+To get started, clone this repo and change into directory:
 
 ```sh
 git clone git@github.com:itsyohan/game-of-life.git
