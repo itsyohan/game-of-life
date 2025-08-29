@@ -1,5 +1,38 @@
 module GOL
   class Grid
+    #
+    ### Motivation
+    #
+    # When you are dealing with a grid, typically you would have something like this:
+    #
+    # grid = [ y0[ x0... ], y1[ x0... ], y2[ x0... ] ]
+    # grid.each_with_index do |outside, y|
+    #   outside.each_with_index do |inside, x|
+    #     # access element
+    #     element = grid[y][x]
+    #
+    #     # access neighbor to the right
+    #     neighbor = grid[y][x+1]
+    #     ...
+    #   end
+    # end
+    #
+    # You have a nested array in which you have to remember which indices represent x and y coordinates.
+    # And if you have not worked with grids in a while, this can trip you up because you have to write them
+    # in the reverse order - y and x not x and y.
+    #
+    # By having a Grid class you can simplify a lot of this and have a more intuitive and human friendly interface:
+    #
+    #   grid.cells do |cell|
+    #     # get the neighbor to the right
+    #     grid.at(cell.x+1, cell.y)
+    #     ...
+    #   end
+    #
+    # You flatten the nested array and encapsulate traversing the grid with a single #cells method.
+    # The cell object knows where it is on the grid with x and y properties. And you can access any cell on the grid
+    # with the grid #at method which takes x and y values as arguments.
+    #
     def self.from(array)
       wrapped = array.map.with_index do |rows, y|
         rows.map.with_index do |state, x|
