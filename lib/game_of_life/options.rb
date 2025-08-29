@@ -26,9 +26,9 @@ module GOL
             options.playback_speed = s
           end
 
-          op.on("-seSEED", "--seed=SEED", "Choose a seed file") do |s|
-            options.playback_speed = s
-          end
+          # op.on("-seSEED", "--seed=SEED", "Choose a seed file") do |s|
+          #   options.playback_speed = s
+          # end
 
           op.on("-d", "--debug", "Run in debugging mode") do |d|
             options.debug = d
