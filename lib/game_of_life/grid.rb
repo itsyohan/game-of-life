@@ -56,8 +56,12 @@ module GOL
       else
         @width = width
         @height = height
-        @grid = height.times.map { |y| width.times.map { |x| Cell.new(:dead, x, y) } }
       end
+    end
+
+    def fill
+      @grid = height.times.map { |y| width.times.map { |x| yield(x, y) } }
+      self
     end
 
     def at(x, y)

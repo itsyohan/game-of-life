@@ -7,6 +7,7 @@ module GOL
     def initialize(options)
       @options = options
       @grid = Grid.new(width: options.grid_width, height: (options.grid_width * 0.6).round)
+                .fill { |x, y| Cell.new(:dead, x, y) }
       seed = Seed.load(options.seed_name)
       seed.cells do |cell|
         cell => { x:, y: }
